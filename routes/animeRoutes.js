@@ -7,30 +7,28 @@ import fs from "fs";
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-// ===== READ (Get all anime) =====
-router.get("/", async (req, res) => {
-  try {
-    const data = await Anime.find();
-    res.json(data);
-  } catch (err) {
-    console.error("❌ Error in GET /api/anime:", err);
-    res.status(500).json({ error: err.message });
-  }
+// ✅ Cloudinary Config (ENV से values)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// ===== CREATE (Add new anime with image upload) =====
+// =====================
+// 📌 CREATE (Add New Anime)
+// =====================
 router.post("/", upload.single("file"), async (req, res) => {
   try {
-    let imageUrl = "";
+    console.log("📤 File received:", req.file);
+    console.log("📦 Body received:", req.body);
 
+    let imageUrl = "";
     if (req.file) {
-      console.log("🖼 Uploading file to Cloudinary...");
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "anime-library",
       });
       imageUrl = result.secure_url;
       fs.unlinkSync(req.file.path);
-      console.log("✅ Image uploaded:", imageUrl);
     }
 
     const newAnime = new Anime({
@@ -40,40 +38,70 @@ router.post("/", upload.single("file"), async (req, res) => {
       category: req.body.category,
     });
 
-    const data = await newAnime.save();
-    res.status(201).json(data);
+    const saved = await newAnime.save();
+    res.status(201).json(saved);
   } catch (err) {
-    console.error("❌ Error in POST /api/anime:", err);
+    console.error("❌ CREATE Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ===== UPDATE =====
-router.put("/:id", async (req, res) => {
+// =====================
+// 📌 READ (Get All Anime)
+// =====================
+router.get("/", async (req, res) => {
   try {
-    const updatedAnime = await Anime.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedAnime)
-      return res.status(404).json({ message: "Anime not found" });
-    res.json(updatedAnime);
+    const data = await Anime.find();
+    res.json(data);
   } catch (err) {
-    console.error("❌ Error in PUT /api/anime/:id:", err);
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// ===== DELETE =====
+// =====================
+// 📌 UPDATE (Edit Anime)
+// =====================
+router.put("/:id", upload.single("file"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    let imageUrl = req.body.img;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "anime-library",
+      });
+      imageUrl = result.secure_url;
+      fs.unlinkSync(req.file.path);
+    }
+
+    const updated = await Anime.findByIdAndUpdate(
+      id,
+      {
+        name: req.body.name,
+        img: imageUrl,
+        link: req.body.link,
+        category: req.body.category,
+      },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    console.error("❌ UPDATE Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =====================
+// 📌 DELETE (Remove Anime)
+// =====================
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedAnime = await Anime.findByIdAndDelete(req.params.id);
-    if (!deletedAnime)
-      return res.status(404).json({ message: "Anime not found" });
-    res.json({ message: "Anime deleted successfully" });
+    const { id } = req.params;
+    await Anime.findByIdAndDelete(id);
+    res.json({ message: "Anime deleted successfully!" });
   } catch (err) {
-    console.error("❌ Error in DELETE /api/anime/:id:", err);
+    console.error("❌ DELETE Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
