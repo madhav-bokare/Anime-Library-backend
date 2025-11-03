@@ -1,7 +1,7 @@
 import express from "express";
 import Anime from "../models/anime.js";
 import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "../Cloudinary/connect.js";
 import fs from "fs";
 
 const router = express.Router();
