@@ -21,6 +21,7 @@ router.post("/", upload.single("file"), async (req, res) => {
   try {
     console.log("📤 File received:", req.file);
     console.log("📦 Body received:", req.body);
+    console.log("✅ Cloudinary Config Test:", process.env.CLOUDINARY_CLOUD_NAME);
 
     let imageUrl = "";
     if (req.file) {
