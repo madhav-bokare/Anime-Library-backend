@@ -17,7 +17,7 @@ cloudinary.config({
 // =====================
 // 📌 CREATE (Add New Anime)
 // =====================
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/", upload.single("img"), async (req, res) => {
   try {
     console.log("📤 File received:", req.file);
     console.log("📦 Body received:", req.body);
