@@ -4,7 +4,7 @@ import Anime from "../models/anime.js";
 const router = express.Router();
 
 // =====================
-// CREATE (Add New Anime)
+// CREATE 
 // =====================
 router.post("/", async (req, res) => {
   try {
@@ -43,20 +43,7 @@ router.get("/", async (req, res) => {
 });
 
 // =====================
-// READ BY ID
-// =====================
-router.get("/id/:id", async (req, res) => {
-  try {
-    const anime = await Anime.findById(req.params.id);
-    if (!anime) return res.status(404).json({ error: "Anime not found" });
-    res.json(anime);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// =====================
-// ✅ READ BY 
+//  READ BY Name
 // =====================
 router.get("/name/:name", async (req, res) => {
   try {
