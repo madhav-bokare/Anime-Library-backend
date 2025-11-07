@@ -14,7 +14,7 @@ connectDB()
 // ===== Middleware =====
 app.use(
   cors({
-    origin: "https://anime-library-three.vercel.app/",
+    origin: "https://anime-library-three.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
