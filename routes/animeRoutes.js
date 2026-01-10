@@ -43,7 +43,32 @@ router.get("/", async (req, res) => {
 });
 
 // =====================
-//  READ BY Name
+// READ MOST POPULAR
+// =====================
+router.get("/mostpopular", async (req, res) => {
+  try {
+    const mostPopularAnime = await Anime.find({ category: "mostPopular" });
+    res.json(mostPopularAnime);
+  } catch (err) {
+    console.error("MOST POPULAR Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+// =====================
+// GET Popular Movies
+// =====================
+router.get("/popularmovies", async (req, res) => {
+  try {
+    const movies = await Anime.find({ category: "popularMovies" });
+    res.json(movies);
+  } catch (err) {
+    console.error("Error fetching popular movies:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =====================
+// READ BY Name
 // =====================
 router.get("/name/:name", async (req, res) => {
   try {
@@ -59,8 +84,6 @@ router.get("/name/:name", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
 
 // =====================
 // UPDATE
