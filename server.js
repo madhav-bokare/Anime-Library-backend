@@ -1,30 +1,40 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./MongoDB/connect.js"; 
-import animeRoutes from "./routes/animeRoutes.js";
+import connectDB from "./MongoDB/connect.js";
+import router from "./routes/bookRoutes.js";
 
 dotenv.config();
+
 const app = express();
-app.use(express.json());
 
-// ===== MongoDB Connect =====
-connectDB()
+// ===== JSON & URL-encoded body =====
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
-// ===== Middleware =====
+// ===== MongoDB Connect (single time) =====
+connectDB();
+
+// ===== CORS (optimized) =====
 app.use(
   cors({
-    origin: "https://anime-library-zeta.vercel.app",
+    origin: "http://localhost:5173", 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
 
-// ===== Routes =====//
-app.use("/api/anime", animeRoutes);
+// ===== Routes =====
+app.use("/api/book", router);
+
+// ===== Health Check (FAST ping) =====
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
 
 // ===== Server Start =====
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(` Server running at http://localhost:${PORT}`)
-);
+const PORT = process.env.LOGIN_PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(` Server running on http://localhost:${PORT}`);
+});
